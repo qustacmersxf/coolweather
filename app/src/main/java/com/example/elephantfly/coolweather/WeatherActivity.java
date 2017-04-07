@@ -68,6 +68,8 @@ public class WeatherActivity extends AppCompatActivity {
 
     private ImageView bingPicImg;
 
+    public String weatherId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,21 +96,16 @@ public class WeatherActivity extends AppCompatActivity {
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         navButton = (Button)findViewById(R.id.nav_button);
 
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        String weatherString = pref.getString("weather", null);
-        final String weatherId;
-        if (weatherString != null){
-            Weather weather = Utility.handleWeatherResponse(weatherString);
-            weatherId = weather.basic.weatherId;
-            showWeatherInfo(weather);
-        }else{
-            weatherId = getIntent().getStringExtra("weather_id");
-            weatherLayout.setVisibility(View.INVISIBLE);
-            requestWeather(weatherId);
-        }
+        weatherId = getIntent().getStringExtra("weather_id");
+        Log.d("debug", "WeatherActivity:weatherId=" + weatherId);
+        weatherLayout.setVisibility(View.INVISIBLE);
+        requestWeather(weatherId);
+
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                Log.d("debug", "WeatherActivity.swipeRefreshLayout.onRefresh:weatherId=" +
+                        weatherId);
                 requestWeather(weatherId);
             }
         });
@@ -119,12 +116,7 @@ public class WeatherActivity extends AppCompatActivity {
             }
         });
 
-        String bingPic = pref.getString("bing_pic", null);
-        if (bingPic != null){
-            Glide.with(this).load(bingPic).into(bingPicImg);
-        }else{
-            loadBingPic();
-        }
+        loadBingPic();
     }
 
     public void requestWeather(final String weatherId){
